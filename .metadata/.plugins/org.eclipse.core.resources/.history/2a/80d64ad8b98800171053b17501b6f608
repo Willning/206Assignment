@@ -1,0 +1,66 @@
+package guiAuthoring;
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
+import com.sun.jna.NativeLibrary;
+import com.sun.jna.Native;
+
+import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
+import uk.co.caprica.vlcj.discovery.NativeDiscovery;
+import uk.co.caprica.vlcj.binding.LibVlc;
+import uk.co.caprica.vlcj.runtime.RuntimeUtil;
+
+
+public class VideoView{
+	
+
+	private final JFrame frame= new JFrame("Math Authoring Aid");
+	private JPanel panel = new JPanel(new BorderLayout());
+	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
+	
+
+	public static void main(String[] args) {
+        boolean found = new NativeDiscovery().discover();
+	                    
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				new VideoView();
+			}
+		});
+	}
+	
+	
+	
+
+	public VideoView(){
+		
+        JButton listButton = new JButton("Shhh....");
+        frame.add(listButton, BorderLayout.NORTH);
+        listButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("please kill me");
+			}
+		});
+		
+        panel.add(listButton);
+        
+        frame.setContentPane(panel);		
+		frame.setBounds(100, 100, 1200, 800);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLayout(new BorderLayout());
+		mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
+		frame.setContentPane(mediaPlayerComponent);
+		frame.setVisible(true);
+	}
+}
+
+
