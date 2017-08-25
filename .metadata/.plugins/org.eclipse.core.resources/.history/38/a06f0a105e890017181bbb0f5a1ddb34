@@ -1,0 +1,9 @@
+package guiAuthoring;
+
+import javax.swing.DefaultListModel;
+
+public class creationModel extends DefaultListModel<File> {
+	//The Model portion of our MVC pattern. 
+	
+	
+}

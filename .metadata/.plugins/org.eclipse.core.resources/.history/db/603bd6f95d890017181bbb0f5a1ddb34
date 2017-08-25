@@ -1,0 +1,5 @@
+package guiAuthoring;
+
+public class creationModel extends DefaultListModel {
+
+}

@@ -1,0 +1,10 @@
+package guiAuthoring;
+
+import javax.swing.JButton;
+
+@SuppressWarnings("serial")
+public class AbstractButton extends JButton{
+	
+	
+	
+}

@@ -1,0 +1,59 @@
+package guiAuthoring;
+
+import java.io.File;
+
+import javax.swing.DefaultListModel;
+
+@SuppressWarnings("serial")
+public class creationModel {
+	//The Model portion of our MVC pattern. Singleton this later on
+
+	DefaultListModel<String> creationList=new  DefaultListModel<String>();
+
+	private File creationFiles=new File("./creations"); //this is the relative path to the creations.
+	private File videoAssets=new File("./videoAssets");
+	private File soundAssets=new File("./soundAssets");
+
+	public void createFiles() {
+		//This is a helper method used to create the directory files if they are needed.
+
+		if (!creationFiles.exists()) {	        
+			creationFiles.mkdir();
+			//If the creation directory does not exist, create it. 
+		}
+
+		if(!videoAssets.exists()) {
+			videoAssets.mkdir();
+		}
+
+		if(!soundAssets.exists()) {
+			soundAssets.mkdir();
+		}
+
+	}
+
+	public void updateList(){
+		creationList.clear();
+		//clear the list before refreshing
+		
+		for(File creation:creationFiles.listFiles())
+			if (!creationList.contains(creation.getName())){
+				//if there is no other file in this list with the same name, we are clear to add. 
+				creationList.addElement(creation.getName());				
+			}		
+	}
+	
+	public void deleteElement(String name){
+		for (File creation:creationFiles.listFiles()){
+			if(creation.getName().equals(name)){
+				creation.delete();
+			}
+		}
+		this.updateList();
+		
+	}
+
+	public DefaultListModel<String> outputList() {
+		return creationList;
+	}
+}
