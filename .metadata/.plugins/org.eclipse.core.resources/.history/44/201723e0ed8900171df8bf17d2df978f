@@ -1,0 +1,7 @@
+package guiAuthoring;
+
+public class CreationModel {
+
+	private static CreationModel instance=nll;
+	
+}

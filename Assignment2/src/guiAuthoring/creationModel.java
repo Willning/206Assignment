@@ -5,10 +5,25 @@ import java.io.File;
 import javax.swing.DefaultListModel;
 
 @SuppressWarnings("serial")
-public class creationModel {
+public class CreationModel {
 	//The Model portion of our MVC pattern. Singleton this later on
+	
+	private static CreationModel instance= null;
+	private CreationModel(){
+		//This is done to prevent multiple instantiation.
+	}
+	
+	public static CreationModel getInstance(){
+		if (instance==null){
+			instance=new CreationModel();
+		}
+		return instance;
+		
+	}	
+	
 
 	DefaultListModel<String> creationList=new  DefaultListModel<String>();
+	//String list of all the creations.
 
 	private File creationFiles=new File("./creations"); //this is the relative path to the creations.
 	private File videoAssets=new File("./videoAssets");
@@ -51,6 +66,15 @@ public class creationModel {
 			}
 		}
 		updateList();		
+	}
+	
+	public String playElement(String name){
+		for (File creation:creationFiles.listFiles()){
+			if(creation.getName().equals(name)){
+				return  creation.toString();
+				}
+			}
+		return null;
 	}
 
 	public DefaultListModel<String> outputList() {

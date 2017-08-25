@@ -1,7 +1,0 @@
-package guiAuthoring;
-
-import javax.swing.DefaultListModel;
-
-public class creationModel extends DefaultListModel<File> {
-
-}

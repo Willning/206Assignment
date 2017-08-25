@@ -1,0 +1,34 @@
+package guiAuthoring;
+
+import javax.swing.DefaultListModel;
+
+public class CreationModel {
+	//model part of the MVC, this is a singleton class
+
+	private static CreationModel instance=null;
+	
+	private CreationModel(){
+		
+	}
+	
+	   public static CreationModel getInstance() {
+		      if(instance == null) {
+		         instance = new CreationModel();
+		      }
+		      return instance;
+		   }
+	   
+	   private DefaultListModel<String> creationList=new DefaultListModel<String>();
+	   
+	   
+	   public void updateList(){
+		   for (File file: creationPath.toList()){
+			   
+		   }
+	   }
+	   
+	   public void deleteElement(String name){
+		   
+	   }
+	   
+}

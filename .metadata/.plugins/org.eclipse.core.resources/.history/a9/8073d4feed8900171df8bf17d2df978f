@@ -1,0 +1,19 @@
+package guiAuthoring;
+
+public class CreationModel {
+
+	private static CreationModel instance=null;
+	
+	private CreationModel(){
+		
+	}
+	
+	   public static CreationModel getInstance() {
+		      if(instance == null) {
+		         instance = new CreationModel();
+		      }
+		      return instance;
+		   }
+	   
+	   
+}

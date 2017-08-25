@@ -13,6 +13,9 @@
 <fullyQualifiedTypeName name="uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer"/>
 <fullyQualifiedTypeName name="java.awt.BorderLayout"/>
 <fullyQualifiedTypeName name="javax.swing.JList"/>
-<fullyQualifiedTypeName name="javax.swing.DefaultListModel"/>
 <fullyQualifiedTypeName name="java.awt.Label"/>
+<fullyQualifiedTypeName name="uk.co.caprica.vlcj.player.MediaPlayerEventAdapter"/>
+<fullyQualifiedTypeName name="uk.co.caprica.vlcj.player.MediaPlayer"/>
+<fullyQualifiedTypeName name="java.awt.Color"/>
+<fullyQualifiedTypeName name="javax.swing.DefaultListModel"/>
 </qualifiedTypeNameHistroy>

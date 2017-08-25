@@ -1,6 +1,7 @@
 package guiAuthoring;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Label;
@@ -22,7 +23,10 @@ import com.sun.jna.Native;
 
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.discovery.NativeDiscovery;
+import uk.co.caprica.vlcj.player.MediaPlayer;
+import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
+import uk.co.caprica.vlcj.player.media.Media;
 import uk.co.caprica.vlcj.binding.LibVlc;
 import uk.co.caprica.vlcj.runtime.RuntimeUtil;
 
@@ -55,16 +59,22 @@ public class VideoView{
 
 		JFrame frame= new JFrame("Math Authoring Aid");
 		JPanel contentPanel = new JPanel(new BorderLayout());
+		
 		JPanel ListPanel=new JPanel(new BorderLayout());
+		JPanel videoPanel=new JPanel(new BorderLayout());
+		JPanel controlPanel=new JPanel(new FlowLayout());
+				
+		videoPanel.setBackground(Color.BLACK);
 
-		creationModel model = new creationModel();
+		CreationModel model=CreationModel.getInstance();
+		
 		//Model part of MVC 
 
 		model.createFiles();
 		model.updateList();
 		//Upon starting, the file directories will be checked and then updated into the gui.
 
-		JList list=new JList(model.outputList());
+		JList<String> list=new JList<String>(model.outputList());
 		//Make this update everytime List is pressed.
 
 		JScrollPane scrollPane=new JScrollPane(list);
@@ -74,19 +84,29 @@ public class VideoView{
 		JScrollBar bar = scrollPane.getVerticalScrollBar();
 		bar.setPreferredSize(new Dimension(10, 0));
 
-		//view, change this so it displays blank
 
 		//Use a listModel and a JList to display all the creations
 
 		mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
 		final EmbeddedMediaPlayer video = mediaPlayerComponent.getMediaPlayer();
-
-		contentPanel.add(mediaPlayerComponent, BorderLayout.CENTER);
+		
+		video.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
+		    @Override
+		    public void finished(MediaPlayer mediaPlayer) {
+		    	videoPanel.getComponent(0).setVisible(false);
+		    	//on finishing, hide the videoPanel
+		     
+		    }
+		});		
+		
+		videoPanel.add(mediaPlayerComponent, BorderLayout.CENTER);
+		contentPanel.add(videoPanel,BorderLayout.CENTER);
 		ListPanel.add(scrollPane,BorderLayout.WEST);
 		ListPanel.add(bar,BorderLayout.EAST);
 
 
-		JPanel controlPanel=new JPanel(new FlowLayout());
+		
+		
 
 		JButton listButton = new JButton("Refresh List");		
 		listButton.addActionListener(new ActionListener() {
@@ -105,7 +125,11 @@ public class VideoView{
 		playButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
+				if (list.getSelectedValue()!=null) {
+					videoPanel.getComponent(0).setVisible(true);
+					video.playMedia(model.playElement((String) list.getSelectedValue())); // fix this
+					
+				}
 			}		
 		});
 		controlPanel.add(playButton);
@@ -115,12 +139,26 @@ public class VideoView{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (list.getSelectedValue()!=null) {
+					
 					model.deleteElement(list.getSelectedValue().toString());	
 					
 				}
 			}
 		});		
 		controlPanel.add(destroyButton);
+		
+		JButton createButton=new JButton("Create");
+		createButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e){
+				if (list.getSelectedValue()!=null) {
+					
+					
+					
+				}
+			}
+		});
+		controlPanel.add(createButton);
 		
 
 		contentPanel.add(controlPanel, BorderLayout.SOUTH);
