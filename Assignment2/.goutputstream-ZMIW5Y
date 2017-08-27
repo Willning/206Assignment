@@ -1,0 +1,5 @@
+#!bin/bash
+
+ffmpeg -nostats -f lavfi -i color=color=blue \
+			-vf drawtext="fontfile=./creation/TibetanMachineUni.ttf:text='$name':fontcolor=black:fontsize=56: x=(w-text_w)/2: y=(h-text_h)/2" \
+			-t 3 -s 320x240 $name.mp4 &>>output.txt

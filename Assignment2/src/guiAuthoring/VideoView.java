@@ -8,6 +8,7 @@ import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -16,6 +17,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import com.sun.jna.NativeLibrary;
@@ -59,15 +61,15 @@ public class VideoView{
 
 		JFrame frame= new JFrame("Math Authoring Aid");
 		JPanel contentPanel = new JPanel(new BorderLayout());
-		
+
 		JPanel ListPanel=new JPanel(new BorderLayout());
 		JPanel videoPanel=new JPanel(new BorderLayout());
 		JPanel controlPanel=new JPanel(new FlowLayout());
-				
+
 		videoPanel.setBackground(Color.BLACK);
 
 		CreationModel model=CreationModel.getInstance();
-		
+
 		//Model part of MVC 
 
 		model.createFiles();
@@ -89,24 +91,26 @@ public class VideoView{
 
 		mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
 		final EmbeddedMediaPlayer video = mediaPlayerComponent.getMediaPlayer();
-		
+
 		video.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
-		    @Override
-		    public void finished(MediaPlayer mediaPlayer) {
-		    	videoPanel.getComponent(0).setVisible(false);
-		    	//on finishing, hide the videoPanel
-		     
-		    }
-		});		
+			@Override
+			public void finished(MediaPlayer mediaPlayer) {
+				videoPanel.getComponent(0).setVisible(false);
+				//on finishing, hide the videoPanel
+
+			}
+		});
 		
+		videoPanel.setPreferredSize(new Dimension(480,360));
+
 		videoPanel.add(mediaPlayerComponent, BorderLayout.CENTER);
 		contentPanel.add(videoPanel,BorderLayout.CENTER);
 		ListPanel.add(scrollPane,BorderLayout.WEST);
 		ListPanel.add(bar,BorderLayout.EAST);
 
 
-		
-		
+
+
 
 		JButton listButton = new JButton("Refresh List");		
 		listButton.addActionListener(new ActionListener() {
@@ -115,12 +119,12 @@ public class VideoView{
 			@Override
 			public void actionPerformed(ActionEvent e) {				
 				model.updateList();
-				
+
 			}
 		});		
 		controlPanel.add(listButton);
 
-		
+
 		JButton playButton=new JButton("Play");
 		playButton.addActionListener(new ActionListener() {
 			@Override
@@ -128,7 +132,7 @@ public class VideoView{
 				if (list.getSelectedValue()!=null) {
 					videoPanel.getComponent(0).setVisible(true);
 					video.playMedia(model.playElement((String) list.getSelectedValue())); // fix this
-					
+
 				}
 			}		
 		});
@@ -139,27 +143,38 @@ public class VideoView{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (list.getSelectedValue()!=null) {
-					
+
 					model.deleteElement(list.getSelectedValue().toString());	
-					
+
 				}
 			}
 		});		
 		controlPanel.add(destroyButton);
-		
+
 		JButton createButton=new JButton("Create");
 		createButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
-				if (list.getSelectedValue()!=null) {
+				CreationBuilder builder=new CreationBuilder();
+				//Make this actually work?
+				try {
+					builder.buildCreation("hey");	
 					
-					
-					
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block				
 				}
+				model.updateList();
 			}
+
 		});
 		controlPanel.add(createButton);
 		
+		JTextField textField=new JTextField(15);
+		//Later do checks on this textfield to see if the string inside is a valid name
+		
+		
+		controlPanel.add(textField,BorderLayout.EAST);
+
 
 		contentPanel.add(controlPanel, BorderLayout.SOUTH);
 		contentPanel.add(ListPanel,BorderLayout.WEST);
