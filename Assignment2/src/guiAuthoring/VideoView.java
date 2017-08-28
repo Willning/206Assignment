@@ -76,7 +76,8 @@ public class VideoView{
 		model.updateList();
 		//Upon starting, the file directories will be checked and then updated into the gui.
 
-		JList<String> list=new JList<String>(model.outputList());
+		JList<File> list=new JList<File>(model.outputFileList());
+		list.setCellRenderer(new FileRenderer());
 		//Make this update everytime List is pressed.
 
 		JScrollPane scrollPane=new JScrollPane(list);
@@ -100,7 +101,7 @@ public class VideoView{
 
 			}
 		});
-		
+
 		videoPanel.setPreferredSize(new Dimension(480,360));
 
 		videoPanel.add(mediaPlayerComponent, BorderLayout.CENTER);
@@ -131,7 +132,7 @@ public class VideoView{
 			public void actionPerformed(ActionEvent e) {
 				if (list.getSelectedValue()!=null) {
 					videoPanel.getComponent(0).setVisible(true);
-					video.playMedia(model.playElement((String) list.getSelectedValue())); // fix this
+					video.playMedia(model.playElement((list.getSelectedValue()))); // fix this
 
 				}
 			}		
@@ -144,35 +145,33 @@ public class VideoView{
 			public void actionPerformed(ActionEvent e) {
 				if (list.getSelectedValue()!=null) {
 
-					model.deleteElement(list.getSelectedValue().toString());	
+					model.deleteElement(list.getSelectedValue());	
 
 				}
 			}
 		});		
 		controlPanel.add(destroyButton);
 
+		JTextField textField=new JTextField(15);
+		//Textfield to name creations
+
 		JButton createButton=new JButton("Create");
 		createButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
-				CreationBuilder builder=new CreationBuilder();
-				//Make this actually work?
-				try {
-					builder.buildCreation("hey");	
-					
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block				
+				if (!textField.getText().isEmpty()) {
+					model.createElement(textField.getText());
 				}
 				model.updateList();
 			}
 
 		});
 		controlPanel.add(createButton);
-		
-		JTextField textField=new JTextField(15);
+
+
 		//Later do checks on this textfield to see if the string inside is a valid name
-		
-		
+
+
 		controlPanel.add(textField,BorderLayout.EAST);
 
 

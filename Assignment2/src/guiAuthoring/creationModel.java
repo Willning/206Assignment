@@ -1,29 +1,40 @@
 package guiAuthoring;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.swing.DefaultListModel;
 
 @SuppressWarnings("serial")
 public class CreationModel {
 	//The Model portion of our MVC pattern. Singleton this later on
-	
+
 	private static CreationModel instance= null;
 	private CreationModel(){
 		//This is done to prevent multiple instantiation.
 	}
-	
+
 	public static CreationModel getInstance(){
 		if (instance==null){
 			instance=new CreationModel();
 		}
 		return instance;
-		
-	}	
-	
 
-	DefaultListModel<String> creationList=new  DefaultListModel<String>();
-	//String list of all the creations.
+	}	
+
+
+
+
+	DefaultListModel<File> fileList=new DefaultListModel<File>();
+	//List of all the files
+	
+	ArrayList<String> nameList=new ArrayList<String>();
+	//String list of all the creations, used for checking for duplicated upon creation
+
+	ArrayList<File> iterableList = Collections.list(fileList.elements());
+
 
 	private File creationFiles=new File("./creations"); //this is the relative path to the creations.
 	private File videoAssets=new File("./videoAssets");
@@ -48,36 +59,59 @@ public class CreationModel {
 	}
 
 	public void updateList(){
-		creationList.clear();
+		//have a filter here for only .mp4 files
+		
+		fileList.clear();
+		nameList.clear();
 		//clear the list before refreshing
+		for(File creation:creationFiles.listFiles())			
+			if (!fileList.contains(creation)){
+				//if there is no other file in this list with the same name, we are clear to add.
+				//parse out the .mp4 here				
+				fileList.addElement(creation);
+				nameList.add(creation.getName());				
 				
-		for(File creation:creationFiles.listFiles())
-			if (!creationList.contains(creation.getName())){
-				//if there is no other file in this list with the same name, we are clear to add. 
-				creationList.addElement(creation.getName());				
-			}		
+			}
+		
+		this.iterableList = Collections.list(fileList.elements());
 	}
-	
-	
-	public void deleteElement(String name){
-		for (File creation:creationFiles.listFiles()){
-			if(creation.getName().equals(name)){
+
+
+	public void deleteElement(File file){
+		//issue here is that only updateList should be touching directory internals.
+		for (File creation: iterableList){
+			if(creation.equals(file)){
 				creation.delete();
 			}
 		}
-		updateList();		
+		updateList();
 	}
-	
-	public String playElement(String name){
-		for (File creation:creationFiles.listFiles()){
-			if(creation.getName().equals(name)){
-				return  creation.toString();
-				}
+
+	public String playElement(File file){
+		for (File creation: iterableList){
+			if(creation.equals(file)){
+				return creation.getPath();
 			}
+		}
 		return null;
 	}
 
-	public DefaultListModel<String> outputList() {
-		return creationList;
+	public void createElement(String name) {		
+				
+		if(!nameList.contains(name+".mp4")) {
+			//find a way to parse out.mp4
+			CreationBuilder builder=new CreationBuilder();		
+			try {
+				builder.buildCreation(name);	
+
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block				
+			}
+		}
+	}
+
+
+	public DefaultListModel<File> outputFileList() {
+		return fileList;
 	}
 }

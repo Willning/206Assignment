@@ -1,0 +1,10 @@
+package guiAuthoring;
+
+import javax.swing.DefaultListCellRenderer;
+
+public class FileListRenderer extends DefaultListCellRenderer{
+	private static final long serialVersionUID = 1L;
+	
+	
+
+}

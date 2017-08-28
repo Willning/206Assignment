@@ -14,15 +14,35 @@ import java.util.Scanner;
 public class CreationBuilder {
 
 	public void buildCreation(String name) throws IOException{
-				
-		String[] command={"ffmpeg -nostats -f lavfi -i color=color=blue"+				
-				"-t 3 -s 320x240 $name.mp4 &>>output.txt"};
-				
-		ProcessBuilder builder=new ProcessBuilder(command);
-		builder.directory(new File("./creations"));
 		
-		Process process=builder.start();
-	
+
+		String[] command={"/bin/bash", "./creationScript.sh", name};
+		//this probably needs to be backgrounded also needs to be fixed to actually display text
+
+		ProcessBuilder builder=new ProcessBuilder();
+
+		
+		builder.command(command);
+		builder.directory(new File("./creations"));
+
+		Process process=Runtime.getRuntime().exec(command);
+		
+		
+
+		//Bottom part is debugging
+		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		StringBuilder strbuilder = new StringBuilder();
+		String line = null;
+		while ( (line = reader.readLine()) != null) {
+			strbuilder.append(line);
+			strbuilder.append(System.getProperty("line.separator"));
+		}
+		String result = strbuilder.toString();
+
+		System.out.println(result);
+		
+		
+
 	}	
 
 }
