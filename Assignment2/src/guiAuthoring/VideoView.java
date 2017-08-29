@@ -2,17 +2,25 @@ package guiAuthoring;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.Observable;
+import java.util.Observer;
 
+import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -43,6 +51,7 @@ public class VideoView{
 
 
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
+	private final EmbeddedMediaPlayer video;
 
 
 	public static void main(String[] args) {
@@ -52,10 +61,13 @@ public class VideoView{
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				new VideoView();
+				new VideoView();				
 			}
 		});
 	}
+
+	private String creationName=null;
+	CreationModel model=CreationModel.getInstance();
 
 
 	public VideoView(){
@@ -70,13 +82,13 @@ public class VideoView{
 
 		videoPanel.setBackground(Color.BLACK);
 
-		CreationModel model=CreationModel.getInstance();
 
 		//Model part of MVC 
 
 		model.createFiles();
 		model.updateList();
 		//Upon starting, the file directories will be checked and then updated into the gui.
+
 
 		JList<File> list=new JList<File>(model.outputFileList());
 		list.setCellRenderer(new FileRenderer());
@@ -93,7 +105,7 @@ public class VideoView{
 		//Use a listModel and a JList to display all the creations
 
 		mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
-		final EmbeddedMediaPlayer video = mediaPlayerComponent.getMediaPlayer();
+		video = mediaPlayerComponent.getMediaPlayer();
 
 		video.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
 			@Override
@@ -134,7 +146,8 @@ public class VideoView{
 			public void actionPerformed(ActionEvent e) {
 				if (list.getSelectedValue()!=null) {
 					videoPanel.getComponent(0).setVisible(true);
-					video.playMedia(model.playElement((list.getSelectedValue()))); // fix this
+
+					video.playMedia(model.playElement((list.getSelectedValue()))); 
 
 				}
 			}		
@@ -154,37 +167,74 @@ public class VideoView{
 		});		
 		controlPanel.add(destroyButton);			
 
-		
 
+		CreationDialog creationDialog=new CreationDialog(frame);
+		//creation dialog menu used to build creations. Closing this without finishing will reset this and delete all recordings made 
+		//that were unassigned to a video 
+		creationDialog.setLocationRelativeTo(controlPanel);
+		creationDialog.addWindowListener(new WindowListener() {
 
+			@Override
+			public void windowActivated(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowClosed(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowClosing(WindowEvent arg0) {
+				creationDialog.reset();
+				model.updateList();
+				
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowDeiconified(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowIconified(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowOpened(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 
 
 		JButton createButton=new JButton("Create");
-		createButton.addActionListener(new ActionListener(){
-			
-			String name=null;
+		createButton.addActionListener(new ActionListener(){				
 			@Override
 			public void actionPerformed(ActionEvent e){				
-                String name = JOptionPane.showInputDialog(videoPanel,
-                        "Enter Creation Name", null);
-                
-				if (!name.isEmpty()) {
-					model.createElement(name);
-					//this whole top part willl be swingworkered
-										
-				}			
+				if (!creationDialog.isShowing()) {
+					creationDialog.setVisible(true);
+				}
+
 			}
 
 		});
 		controlPanel.add(createButton);
 
 
-		//Later do checks on this textfield to see if the string inside is a valid name
 		
-
-
-		
-
 		contentPanel.add(controlPanel, BorderLayout.SOUTH);
 		contentPanel.add(ListPanel,BorderLayout.WEST);
 
@@ -194,6 +244,125 @@ public class VideoView{
 		frame.setSize(1050, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);				
 		frame.setVisible(true);
+	}
+
+
+
+	@SuppressWarnings("serial")
+	class CreationDialog extends JDialog implements Observer{
+
+
+		JLabel recordingStatus;
+		JPanel creationPanel = new JPanel();
+		JTextField nameField;
+
+
+		CreationDialog(JFrame frame){
+			super(frame, "Creation Menu");
+
+			model.addObserver(this);
+
+			nameField=new JTextField("Enter Creation Name");
+			nameField.selectAll();
+
+			JPanel recordPanel=new JPanel();
+
+			recordPanel.setLayout(new BoxLayout(recordPanel, BoxLayout.PAGE_AXIS));
+
+
+			JButton record=new JButton("record");
+			record.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (nameField.getText()!=null&&!nameField.getText().isEmpty()) {
+						if (!nameField.getText().contains(" ")){
+							if (!model.isInNameList((nameField.getText()))){
+								recordingStatus.setText("Recording");
+								creationName=nameField.getText();
+								nameField.setEnabled(false);
+								model.record(creationName);
+							}
+						}
+
+					}
+				}
+			});
+			record.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+			recordingStatus= new JLabel("Press record to record creation");
+			recordingStatus.setVisible(true);			
+
+			recordingStatus.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+
+			recordPanel.add(record);
+			recordPanel.add(recordingStatus);
+
+			//make a record record button and a status tracking message
+
+			JButton keep=new JButton("keep");
+			keep.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (creationName!=null&&!creationName.isEmpty()) {
+						try {							
+							model.createElement(creationName);
+						} catch (IOException | InterruptedException e1) {
+							JOptionPane.showMessageDialog(new JButton("OK"), "Creation Was interrupted");
+						}
+					}
+				}
+			});
+
+			JButton playRecording=new JButton("play Recording");
+			playRecording.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+					if (model.playSound(creationName)!=null) {						
+						video.playMedia(model.playSound(creationName));
+					}
+				}
+			});
+
+			creationPanel.add(keep);
+			creationPanel.add(playRecording);
+
+			creationPanel.setVisible(false);
+			//contains the buttons for keep and play recording, should only be visible when there is a recording
+
+
+			//creationDialog=new JDialog(frame, "Creation");
+			this.setSize(new Dimension(300,100));			
+			this.add(creationPanel);
+			this.add(recordPanel,BorderLayout.SOUTH);
+			this.add(nameField,BorderLayout.NORTH);
+
+		}
+		
+		public void reset() {
+			nameField.setEnabled(true);
+			nameField.setText("Enter Creation Name");
+			nameField.selectAll();
+			
+			recordingStatus.setText("Press record to record creation");
+			creationPanel.setVisible(false);
+		}
+
+		@Override
+		public void update(Observable arg0, Object state) {
+
+			if ((String)state=="halfFinished") {
+				
+				recordingStatus.setText("Done: Press record again to rerecord");
+				creationPanel.setVisible(true);
+			}
+
+			if ((String)state=="finished") {
+				reset();
+			}
+
+		}
 	}
 
 

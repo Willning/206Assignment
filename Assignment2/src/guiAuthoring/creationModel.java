@@ -4,14 +4,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.DefaultListModel;
 
 @SuppressWarnings("serial")
-public class CreationModel  {
+public class CreationModel extends Observable{
 	//The Model portion of our MVC pattern. Singleton this later on
 
-	private static CreationModel instance= null;
+	private static CreationModel instance= null;	
+	private CreationBuilder builder=new CreationBuilder();
+
+
+
 	private CreationModel(){
 		//This is done to prevent multiple instantiation.
 	}
@@ -24,7 +30,6 @@ public class CreationModel  {
 
 	}
 
-
 	DefaultListModel<File> fileList=new DefaultListModel<File>();
 	//List of all the files
 
@@ -34,7 +39,8 @@ public class CreationModel  {
 	ArrayList<File> iterableList = Collections.list(fileList.elements());
 
 
-	private File creationFiles=new File("./creations"); //this is the relative path to the creations.
+	private File creationFiles=new File("./creations");
+	//these are the relative path to the creations and also assetFiles.
 	private File videoAssets=new File("./videoAssets");
 	private File soundAssets=new File("./soundAssets");
 
@@ -57,8 +63,7 @@ public class CreationModel  {
 	}
 
 	public void updateList(){
-		//have a filter here for only .mp4 files
-
+		
 		fileList.clear();
 		nameList.clear();
 		//clear the list before refreshing
@@ -67,11 +72,26 @@ public class CreationModel  {
 				//if there is no other file in this list with the same name, we are clear to add.
 				//parse out the .mp4 here				
 				fileList.addElement(creation);
-				nameList.add(creation.getName());				
+				nameList.add(creation.getName());			
 
 			}
+		cleanAssets();
 
 		this.iterableList = Collections.list(fileList.elements());
+	}
+	
+	private void cleanAssets() {
+		//this method will clean the videoAsset and soundAsset files for files that aren't in the model
+		for (File sound: soundAssets.listFiles()) {
+			String soundName=sound.getName();
+			
+			if (soundName.contains(".wav")){
+				soundName= soundName.substring(0, soundName.lastIndexOf("."));
+			}			
+			if (!nameList.contains(soundName+".mp4")) {
+				sound.delete();
+			}
+		}		
 	}
 
 
@@ -82,10 +102,36 @@ public class CreationModel  {
 				creation.delete();
 			}
 		}
+
+		for (File video: videoAssets.listFiles()) {
+			//Delete video assets
+			if (video.getName().equals(file.getName()))
+				video.delete();
+		}
+
+		for (File sound:soundAssets.listFiles()) {
+			//Delete sound Assets
+			String soundName=sound.getName();
+			String fileName=file.getName();
+
+			if (soundName.contains(".wav")){
+				soundName= soundName.substring(0, soundName.lastIndexOf("."));
+			}
+
+			if (file.getName().contains(".mp4")){
+				fileName=fileName.substring(0, fileName.lastIndexOf("."));
+			}
+
+			if (soundName.equals(fileName)) {
+				sound.delete();
+			}
+		}
+
 		updateList();
 	}
 
-	public String playElement(File file){
+	public String playElement(File file){		
+		
 		for (File creation: iterableList){
 			if(creation.equals(file)){
 				return creation.getPath();
@@ -94,21 +140,57 @@ public class CreationModel  {
 		return null;
 	}
 
-	public void createElement(String name) {		
+	public void createElement(String name) throws IOException, InterruptedException {		
+		builder.setName(name);
+		if(!nameList.contains(name+".mp4")) {			
 
-		if(!nameList.contains(name+".mp4")) {
-			//find a way to parse out.mp4
-			CreationBuilder builder=new CreationBuilder(name);
-
-			BackGroundWorker work=new BackGroundWorker(builder);
-			work.execute();		
-
+			VideoWorker work=new VideoWorker(this.builder);
+			work.execute();
 		}
+	}
+
+	public void record(String name) {
+		builder.setName(name);
+		
+		if(!nameList.contains(name+".mp4")) {
+			//overwriten in the script
+			
+			RecordWorker record=new RecordWorker(this.builder);
+			record.execute();
+		}
+	}
+	
+	public String playSound(String name) {		
+		
+		for (File wav:soundAssets.listFiles()) {			
+			if(wav.getName().equals(name+".wav")) {				
+				return wav.getPath();
+			}
+		}
+		return null;
+	}
+	
+	public void finishedRecord() {
+		this.setChanged();
+		this.notifyObservers("halfFinished");
+	}
+	
+	public void creationFinished() {
+		//this notifies differently. 
+		this.updateList();
+		this.setChanged();
+		this.notifyObservers("finished");
 	}
 
 
 	public DefaultListModel<File> outputFileList() {
 		return fileList;
 	}
+	
+	public boolean isInNameList(String name){
+		//check if the name is in the nameList
+		return nameList.contains(name+".mp4");
+	}
+
 
 }

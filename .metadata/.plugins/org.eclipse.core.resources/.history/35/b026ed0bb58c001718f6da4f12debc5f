@@ -1,0 +1,61 @@
+package guiAuthoring;
+
+
+import java.io.IOException;
+import java.util.Observable;
+
+public class CreationBuilder extends Observable {
+	
+	 
+	private String name;
+	private boolean recordDone=false;
+	private boolean createDone=false; 
+
+	
+	public void setName(String name) {
+		this.name=name;
+	}
+
+	public void buildCreation() throws IOException, InterruptedException{
+		
+		addObserver(CreationModel.getInstance());
+
+		String[] command={"/bin/bash", "./creationScript.sh", this.name};
+		//this probably needs to be backgrounded also needs to be fixed to actually display text
+
+		Process process=Runtime.getRuntime().exec(command);
+		process.waitFor(); //this process is done when it fully executes,
+		createDone=true;	
+		
+		notifyObservers(getState());
+
+	}
+	
+	
+	public void recordSound() throws IOException, InterruptedException{
+		//Only aRecord is done in the ED thread.
+		String[] command={"/bin/bash", "./recordScript.sh", this.name};		
+		Process initRecord=Runtime.getRuntime().exec(command);
+		initRecord.waitFor();
+		recordDone=true;
+		System.out.prinln("recorded");
+		
+		notifyObservers(getState());
+		
+	}
+	
+
+	
+	public int getState() {
+		if (recordDone&&!createDone) {
+			return 1; //half done
+		}else if(recordDone&&createDone) {
+			return 2; //fully done
+		}else{
+			return 0; //not done
+		}
+	}	
+	
+
+
+}

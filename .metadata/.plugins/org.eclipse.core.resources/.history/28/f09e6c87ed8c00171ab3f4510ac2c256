@@ -1,0 +1,27 @@
+package guiAuthoring;
+
+import javax.swing.SwingWorker;
+
+public class RecordWorker extends SwingWorker{
+	
+	private CreationBuilder builder;
+	
+	
+	public RecordWorker (CreationBuilder builder) {
+		this.builder=builder;
+		
+	}
+	@Override
+	protected Object doInBackground() throws Exception {
+		builder.recordSound();
+		return null;
+	}
+	
+	protected void done() {
+		CreationModel model=CreationModel.getInstance();
+		model.setChanged();
+		model.notifyObservers();
+		
+	}
+
+}

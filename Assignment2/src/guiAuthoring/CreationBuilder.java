@@ -1,41 +1,56 @@
 package guiAuthoring;
 
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.Observable;
 
-public class CreationBuilder {
+public class CreationBuilder{
 	
-	//Make this have a swingworker. 
+	 
 	private String name;
 	
-	public CreationBuilder(String name){
+	
+	public CreationBuilder() {
+		
+	}
+
+	
+	public void setName(String name) {
 		this.name=name;
 	}
 
-	public void buildCreation() throws IOException, InterruptedException{		
+	public void buildCreation() throws IOException{		
 
 		String[] command={"/bin/bash", "./creationScript.sh", this.name};
 		//this probably needs to be backgrounded also needs to be fixed to actually display text
 
 		Process process=Runtime.getRuntime().exec(command);
-		process.waitFor(); //this process is done when it fully executes,
-		//later catch the exceptions and deal with them accordingly
+		try {
+			process.waitFor();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			System.out.println("interrupted");
+		} //this process is done when it fully executes,
 
 	}
 	
 	
-	public void recordSound(String name) throws IOException{
+	public void recordSound() throws IOException{
 		//Only aRecord is done in the ED thread.
 		String[] command={"/bin/bash", "./recordScript.sh", this.name};		
 		Process initRecord=Runtime.getRuntime().exec(command);
+		try {
+			initRecord.waitFor();
+		} catch (InterruptedException e) {
+			System.out.println("interrupted");
+			
+		}
+
+		
 	}
+	
+
+	
+
 
 }
