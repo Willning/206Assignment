@@ -1,0 +1,19 @@
+package guiAuthoring;
+
+import javax.swing.SwingWorker;
+
+public class BackGroundWorker extends SwingWorker<Object, Object> {
+	//Edit the objects 
+	private String name;
+	
+	public BackGroundWorker (String name) {
+		this.name=name;
+	}
+
+	@Override
+	protected Object doInBackground() throws Exception {
+		
+		return null;
+	}
+
+}

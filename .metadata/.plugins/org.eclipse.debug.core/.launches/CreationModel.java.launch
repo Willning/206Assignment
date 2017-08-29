@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="net.sourceforge.shelled.ui.launchConfigurationType1">
+<stringAttribute key="mainScript" value="src/guiAuthoring/CreationModel.java"/>
+<stringAttribute key="nature" value="net.sourceforge.shelled.core.nature"/>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/Assignment2/src/guiAuthoring/CreationModel.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="process_factory_id" value="org.eclipse.dltk.launching.scriptProcessFactory"/>
+<stringAttribute key="project" value="Assignment2"/>
+</launchConfiguration>

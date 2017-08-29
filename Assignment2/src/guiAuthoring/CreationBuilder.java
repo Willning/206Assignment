@@ -12,37 +12,30 @@ import java.util.List;
 import java.util.Scanner;
 
 public class CreationBuilder {
+	
+	//Make this have a swingworker. 
+	private String name;
+	
+	public CreationBuilder(String name){
+		this.name=name;
+	}
 
-	public void buildCreation(String name) throws IOException{
-		
+	public void buildCreation() throws IOException, InterruptedException{		
 
-		String[] command={"/bin/bash", "./creationScript.sh", name};
+		String[] command={"/bin/bash", "./creationScript.sh", this.name};
 		//this probably needs to be backgrounded also needs to be fixed to actually display text
 
-		ProcessBuilder builder=new ProcessBuilder();
-
-		
-		builder.command(command);
-		builder.directory(new File("./creations"));
-
 		Process process=Runtime.getRuntime().exec(command);
-		
-		
+		process.waitFor(); //this process is done when it fully executes,
+		//later catch the exceptions and deal with them accordingly
 
-		//Bottom part is debugging
-		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-		StringBuilder strbuilder = new StringBuilder();
-		String line = null;
-		while ( (line = reader.readLine()) != null) {
-			strbuilder.append(line);
-			strbuilder.append(System.getProperty("line.separator"));
-		}
-		String result = strbuilder.toString();
-
-		System.out.println(result);
-		
-		
-
-	}	
+	}
+	
+	
+	public void recordSound(String name) throws IOException{
+		//Only aRecord is done in the ED thread.
+		String[] command={"/bin/bash", "./recordScript.sh", this.name};		
+		Process initRecord=Runtime.getRuntime().exec(command);
+	}
 
 }

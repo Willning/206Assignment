@@ -1,0 +1,12 @@
+package guiAuthoring;
+
+import java.awt.Event;
+
+public class ModelUpdateEvent extends Event{
+
+	public ModelUpdateEvent(Object object, int status) {
+		super(object);
+		// TODO Auto-generated constructor stub
+	}
+	
+}

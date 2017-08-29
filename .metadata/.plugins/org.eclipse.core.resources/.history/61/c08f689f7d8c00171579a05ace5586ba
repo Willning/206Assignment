@@ -1,0 +1,6 @@
+package guiAuthoring;
+
+public interface ModelListener {
+	
+	public void receiveModelEvent();
+}

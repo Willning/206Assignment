@@ -1,0 +1,47 @@
+package guiAuthoring;
+
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
+
+public class CreationBuilder {
+
+	public void buildCreation(String name) throws IOException{		
+
+		String[] command={"/bin/bash", "./creationScript.sh", name};
+		//this probably needs to be backgrounded also needs to be fixed to actually display text
+
+		ProcessBuilder builder=new ProcessBuilder();
+
+		
+		builder.command(command);
+		builder.directory(new File("./creations"));
+
+		Process process=Runtime.getRuntime().exec(command);
+		
+		
+
+		//Bottom part is debugging
+		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		StringBuilder strbuilder = new StringBuilder();
+		String line = null;
+		while ( (line = reader.readLine()) != null) {
+			strbuilder.append(line);
+			strbuilder.append(System.getProperty("line.separator"));
+		}
+		String result = strbuilder.toString();
+
+		System.out.println(result);
+		
+		
+
+	}	
+
+}

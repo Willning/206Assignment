@@ -14,7 +14,9 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -150,19 +152,27 @@ public class VideoView{
 				}
 			}
 		});		
-		controlPanel.add(destroyButton);
+		controlPanel.add(destroyButton);			
 
-		JTextField textField=new JTextField(15);
-		//Textfield to name creations
+		
+
+
+
 
 		JButton createButton=new JButton("Create");
 		createButton.addActionListener(new ActionListener(){
+			
+			String name=null;
 			@Override
-			public void actionPerformed(ActionEvent e){
-				if (!textField.getText().isEmpty()) {
-					model.createElement(textField.getText());
-				}
-				model.updateList();
+			public void actionPerformed(ActionEvent e){				
+                String name = JOptionPane.showInputDialog(videoPanel,
+                        "Enter Creation Name", null);
+                
+				if (!name.isEmpty()) {
+					model.createElement(name);
+					//this whole top part willl be swingworkered
+										
+				}			
 			}
 
 		});
@@ -170,10 +180,10 @@ public class VideoView{
 
 
 		//Later do checks on this textfield to see if the string inside is a valid name
+		
 
 
-		controlPanel.add(textField,BorderLayout.EAST);
-
+		
 
 		contentPanel.add(controlPanel, BorderLayout.SOUTH);
 		contentPanel.add(ListPanel,BorderLayout.WEST);

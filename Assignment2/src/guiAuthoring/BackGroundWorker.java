@@ -1,14 +1,29 @@
 package guiAuthoring;
 
+import java.awt.AWTEvent;
+
 import javax.swing.SwingWorker;
 
 public class BackGroundWorker extends SwingWorker<Object, Object> {
 	//Edit the objects 
+	private CreationBuilder builder;
+	
+	
+	public BackGroundWorker (CreationBuilder builder) {
+		this.builder=builder;
+		
+	}
 
 	@Override
 	protected Object doInBackground() throws Exception {
-		// TODO Auto-generated method stub
+		builder.buildCreation();
 		return null;
+	}
+	
+	protected void done() {
+		CreationModel model=CreationModel.getInstance();
+		model.updateList();
+		
 	}
 
 }

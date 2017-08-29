@@ -8,7 +8,7 @@ import java.util.Collections;
 import javax.swing.DefaultListModel;
 
 @SuppressWarnings("serial")
-public class CreationModel {
+public class CreationModel  {
 	//The Model portion of our MVC pattern. Singleton this later on
 
 	private static CreationModel instance= null;
@@ -22,14 +22,12 @@ public class CreationModel {
 		}
 		return instance;
 
-	}	
-
-
+	}
 
 
 	DefaultListModel<File> fileList=new DefaultListModel<File>();
 	//List of all the files
-	
+
 	ArrayList<String> nameList=new ArrayList<String>();
 	//String list of all the creations, used for checking for duplicated upon creation
 
@@ -60,7 +58,7 @@ public class CreationModel {
 
 	public void updateList(){
 		//have a filter here for only .mp4 files
-		
+
 		fileList.clear();
 		nameList.clear();
 		//clear the list before refreshing
@@ -70,9 +68,9 @@ public class CreationModel {
 				//parse out the .mp4 here				
 				fileList.addElement(creation);
 				nameList.add(creation.getName());				
-				
+
 			}
-		
+
 		this.iterableList = Collections.list(fileList.elements());
 	}
 
@@ -97,16 +95,14 @@ public class CreationModel {
 	}
 
 	public void createElement(String name) {		
-				
+
 		if(!nameList.contains(name+".mp4")) {
 			//find a way to parse out.mp4
-			CreationBuilder builder=new CreationBuilder();		
-			try {
-				builder.buildCreation(name);	
+			CreationBuilder builder=new CreationBuilder(name);
 
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block				
-			}
+			BackGroundWorker work=new BackGroundWorker(builder);
+			work.execute();		
+
 		}
 	}
 
@@ -114,4 +110,5 @@ public class CreationModel {
 	public DefaultListModel<File> outputFileList() {
 		return fileList;
 	}
+
 }
