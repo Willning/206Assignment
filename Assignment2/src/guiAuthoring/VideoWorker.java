@@ -1,7 +1,5 @@
 package guiAuthoring;
 
-import java.awt.AWTEvent;
-
 import javax.swing.SwingWorker;
 
 public class VideoWorker extends SwingWorker<Object, Object> {

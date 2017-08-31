@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -16,7 +15,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -24,30 +22,19 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-
-import com.sun.jna.NativeLibrary;
-import com.sun.jna.Native;
 
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.discovery.NativeDiscovery;
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
-import uk.co.caprica.vlcj.player.media.Media;
-import uk.co.caprica.vlcj.binding.LibVlc;
-import uk.co.caprica.vlcj.runtime.RuntimeUtil;
 
 
 public class VideoView{
-	//TODO get listing to list
-	//TODO playbutton
-	//TODO, create button
-	//TODDO quit button
 
 
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
@@ -67,18 +54,18 @@ public class VideoView{
 	}
 
 	private String creationName=null;
-	CreationModel model=CreationModel.getInstance();
+	CreationModel model=CreationModel.getInstance();	
+	private JPanel controlPanel;
+
 
 
 	public VideoView(){
 
-
 		JFrame frame= new JFrame("Math Authoring Aid");
 		JPanel contentPanel = new JPanel(new BorderLayout());
-
 		JPanel ListPanel=new JPanel(new BorderLayout());
 		JPanel videoPanel=new JPanel(new BorderLayout());
-		JPanel controlPanel=new JPanel(new FlowLayout());
+		controlPanel=new JPanel(new FlowLayout());
 
 		videoPanel.setBackground(Color.BLACK);
 
@@ -87,6 +74,7 @@ public class VideoView{
 
 		model.createFiles();
 		model.updateList();
+		
 		//Upon starting, the file directories will be checked and then updated into the gui.
 
 
@@ -122,8 +110,6 @@ public class VideoView{
 		contentPanel.add(videoPanel,BorderLayout.CENTER);
 		ListPanel.add(scrollPane,BorderLayout.WEST);
 		ListPanel.add(bar,BorderLayout.EAST);
-
-
 
 
 
@@ -171,52 +157,53 @@ public class VideoView{
 		CreationDialog creationDialog=new CreationDialog(frame);
 		//creation dialog menu used to build creations. Closing this without finishing will reset this and delete all recordings made 
 		//that were unassigned to a video 
+
 		creationDialog.setLocationRelativeTo(controlPanel);
 		creationDialog.addWindowListener(new WindowListener() {
 
 			@Override
 			public void windowActivated(WindowEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowClosed(WindowEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowClosing(WindowEvent arg0) {
 				creationDialog.reset();
 				model.updateList();
-				
+
 			}
 
 			@Override
 			public void windowDeactivated(WindowEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowDeiconified(WindowEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowIconified(WindowEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowOpened(WindowEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 		});
 
 
@@ -234,7 +221,7 @@ public class VideoView{
 		controlPanel.add(createButton);
 
 
-		
+
 		contentPanel.add(controlPanel, BorderLayout.SOUTH);
 		contentPanel.add(ListPanel,BorderLayout.WEST);
 
@@ -246,6 +233,21 @@ public class VideoView{
 		frame.setVisible(true);
 	}
 
+	public void lockControl() {
+		//this will lock the creationPanel so as not to distrub the recording
+		for (Component component:controlPanel.getComponents()) {
+			component.setEnabled(false);
+		}
+
+	}
+
+	public void unlockControl() {
+		//this will unlock the creationPanel
+		for (Component component:controlPanel.getComponents()) {
+			component.setEnabled(true);
+		}
+
+	}
 
 
 	@SuppressWarnings("serial")
@@ -255,12 +257,14 @@ public class VideoView{
 		JLabel recordingStatus;
 		JPanel creationPanel = new JPanel();
 		JTextField nameField;
+		JButton record=new JButton("record");
 
 
 		CreationDialog(JFrame frame){
 			super(frame, "Creation Menu");
-
+			
 			model.addObserver(this);
+
 
 			nameField=new JTextField("Enter Creation Name");
 			nameField.selectAll();
@@ -270,7 +274,6 @@ public class VideoView{
 			recordPanel.setLayout(new BoxLayout(recordPanel, BoxLayout.PAGE_AXIS));
 
 
-			JButton record=new JButton("record");
 			record.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -280,6 +283,7 @@ public class VideoView{
 								recordingStatus.setText("Recording");
 								creationName=nameField.getText();
 								nameField.setEnabled(false);
+								lockControl();								
 								model.record(creationName);
 							}
 						}
@@ -287,20 +291,20 @@ public class VideoView{
 					}
 				}
 			});
+			
 			record.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 			recordingStatus= new JLabel("Press record to record creation");
-			recordingStatus.setVisible(true);			
+			recordingStatus.setVisible(true);		
 
 			recordingStatus.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-
-			recordPanel.add(record);
 			recordPanel.add(recordingStatus);
+			recordPanel.add(record);			
 
 			//make a record record button and a status tracking message
 
-			JButton keep=new JButton("keep");
+			JButton keep=new JButton("Finish Creation");
 			keep.addActionListener(new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -318,7 +322,7 @@ public class VideoView{
 			playRecording.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					
+
 					if (model.playSound(creationName)!=null) {						
 						video.playMedia(model.playSound(creationName));
 					}
@@ -333,19 +337,20 @@ public class VideoView{
 
 
 			//creationDialog=new JDialog(frame, "Creation");
-			this.setSize(new Dimension(300,100));			
+			this.setSize(new Dimension(300,150));			
 			this.add(creationPanel);
 			this.add(recordPanel,BorderLayout.SOUTH);
 			this.add(nameField,BorderLayout.NORTH);
 
 		}
-		
+
 		public void reset() {
 			nameField.setEnabled(true);
 			nameField.setText("Enter Creation Name");
 			nameField.selectAll();
-			
-			recordingStatus.setText("Press record to record creation");
+			unlockControl();
+
+			recordingStatus.setText("<html>Press record to record creation<br></html>");
 			creationPanel.setVisible(false);
 		}
 
@@ -353,12 +358,11 @@ public class VideoView{
 		public void update(Observable arg0, Object state) {
 
 			if ((String)state=="halfFinished") {
-				
-				recordingStatus.setText("Done: Press record again to rerecord");
-				creationPanel.setVisible(true);
-			}
 
-			if ((String)state=="finished") {
+				recordingStatus.setText("<html>Finished Recording:<br> To re-record, press record<br>"
+						+ "To finish creation, press Finish Creation</html>");
+				creationPanel.setVisible(true);
+			}else if ((String)state=="finished") {
 				reset();
 			}
 
