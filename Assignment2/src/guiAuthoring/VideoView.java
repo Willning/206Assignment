@@ -54,17 +54,22 @@ public class VideoView{
 	}
 
 	private String creationName=null;
-	CreationModel model=CreationModel.getInstance();	
-	private JPanel controlPanel;
+	CreationModel model=CreationModel.getInstance();
+	
+	private JFrame frame; //frame  holding everything in the main gui
+	private JPanel contentPanel; //panel of everything
+	private JPanel controlPanel; //panel with main buttons
+	private JPanel listPanel; //panel with the list of creations
+	private JPanel videoPanel; //panel with the video player
 
 
 
 	public VideoView(){
 
-		JFrame frame= new JFrame("Math Authoring Aid");
-		JPanel contentPanel = new JPanel(new BorderLayout());
-		JPanel ListPanel=new JPanel(new BorderLayout());
-		JPanel videoPanel=new JPanel(new BorderLayout());
+		frame= new JFrame("Math Authoring Aid");
+		contentPanel = new JPanel(new BorderLayout());
+		listPanel=new JPanel(new BorderLayout());
+		videoPanel=new JPanel(new BorderLayout());
 		controlPanel=new JPanel(new FlowLayout());
 
 		videoPanel.setBackground(Color.BLACK);
@@ -108,8 +113,8 @@ public class VideoView{
 
 		videoPanel.add(mediaPlayerComponent, BorderLayout.CENTER);
 		contentPanel.add(videoPanel,BorderLayout.CENTER);
-		ListPanel.add(scrollPane,BorderLayout.WEST);
-		ListPanel.add(bar,BorderLayout.EAST);
+		listPanel.add(scrollPane,BorderLayout.WEST);
+		listPanel.add(bar,BorderLayout.EAST);
 
 
 
@@ -128,6 +133,7 @@ public class VideoView{
 
 		JButton playButton=new JButton("Play");
 		playButton.addActionListener(new ActionListener() {
+			//Button responsible for playing the creation
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (list.getSelectedValue()!=null) {
@@ -223,7 +229,7 @@ public class VideoView{
 
 
 		contentPanel.add(controlPanel, BorderLayout.SOUTH);
-		contentPanel.add(ListPanel,BorderLayout.WEST);
+		contentPanel.add(listPanel,BorderLayout.WEST);
 
 		frame.setContentPane(contentPanel);
 
@@ -234,7 +240,8 @@ public class VideoView{
 	}
 
 	public void lockControl() {
-		//this will lock the creationPanel so as not to distrub the recording
+		//this will lock the creationPanel so as not to disturb the recording
+		//this is as all the buttons will prematurely clear the soundAsset if pressed while recording
 		for (Component component:controlPanel.getComponents()) {
 			component.setEnabled(false);
 		}
@@ -252,6 +259,7 @@ public class VideoView{
 
 	@SuppressWarnings("serial")
 	class CreationDialog extends JDialog implements Observer{
+		//This is a helper class in video view which is used to start recordngs and to make creations
 
 
 		JLabel recordingStatus;
@@ -279,12 +287,15 @@ public class VideoView{
 				public void actionPerformed(ActionEvent e) {
 					if (nameField.getText()!=null&&!nameField.getText().isEmpty()) {
 						if (!nameField.getText().contains(" ")){
-							if (!model.isInNameList((nameField.getText()))){
-								recordingStatus.setText("Recording");
-								creationName=nameField.getText();
-								nameField.setEnabled(false);
-								lockControl();								
-								model.record(creationName);
+							if (!model.isInNameList((nameField.getText()))){							
+								
+								recordingStatus.setText("Recording"); //text will change to say recording;
+								creationName=nameField.getText(); //this is done so changes to nameField will not effect the process/merge later on
+								nameField.setEnabled(false); //Extra layer of safety to absolutely ensure the nameField cannot change
+								
+								creationPanel.setVisible(false); //hide the keep and Play Recording buttons while recording.
+								lockControl(); //lock control with the main buttons in the gui as some of them can delete the file mid recording
+								model.record(creationName); //start the process from model
 							}
 						}
 
@@ -305,6 +316,7 @@ public class VideoView{
 			//make a record record button and a status tracking message
 
 			JButton keep=new JButton("Finish Creation");
+			//button used to Finish the creation, on press should unlock the main buttonsin the gui as well as reset the dialog so another creation can be built
 			keep.addActionListener(new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -345,6 +357,8 @@ public class VideoView{
 		}
 
 		public void reset() {
+			//resets the dialog to the startng state as well as unlocking the main buttons
+			
 			nameField.setEnabled(true);
 			nameField.setText("Enter Creation Name");
 			nameField.selectAll();

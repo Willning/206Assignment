@@ -1,5 +1,0 @@
-package guiAuthoring;
-
-public class BackGroundWorker extends SwingWorker {
-
-}

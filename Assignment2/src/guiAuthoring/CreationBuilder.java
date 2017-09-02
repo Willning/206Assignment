@@ -22,7 +22,7 @@ public class CreationBuilder{
 	public void buildCreation() throws IOException{		
 
 		String[] command={"/bin/bash", "./creationScript.sh", this.name};
-		//this probably needs to be backgrounded also needs to be fixed to actually display text
+		//calls a pre-written script to both build the ffmpeg video as well as merge the audio with the created video 
 
 		Process process=Runtime.getRuntime().exec(command);
 		try {
@@ -36,8 +36,9 @@ public class CreationBuilder{
 	
 	
 	public void recordSound() throws IOException{
-		//Only aRecord is done in the ED thread.
-		String[] command={"/bin/bash", "./recordScript.sh", this.name};		
+		
+		String[] command={"/bin/bash", "./recordScript.sh", this.name};	
+		//Calls a pre-written script that does arecord
 		Process initRecord=Runtime.getRuntime().exec(command);
 		try {
 			initRecord.waitFor();

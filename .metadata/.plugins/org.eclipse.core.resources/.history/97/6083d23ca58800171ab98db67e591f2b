@@ -1,8 +1,0 @@
-package guiAuthoring;
-
-import javax.swing.JButton;
-
-public class AbstractButton extends JButton{
-
-	
-}
