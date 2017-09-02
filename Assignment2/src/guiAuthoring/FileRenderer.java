@@ -10,6 +10,8 @@ import javax.swing.filechooser.FileSystemView;
 
 public class FileRenderer extends DefaultListCellRenderer{
 	private static final long serialVersionUID = 1L;
+	
+	//This class is used with our JList in order to parse out the extension name in our list.
 
 	public Component getListCellRendererComponent(
 			JList list,

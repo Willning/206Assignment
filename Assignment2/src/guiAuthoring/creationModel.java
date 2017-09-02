@@ -43,6 +43,7 @@ public class CreationModel extends Observable{
 	//these are the relative path to the creations and also assetFiles.
 	private File videoAssets=new File("./videoAssets");
 	private File soundAssets=new File("./soundAssets");
+	private File pictureAssets=new File("./pictureAssets");
 
 	public void createFiles() {
 		//This is a helper method used to create the directory files if they are needed.
@@ -60,10 +61,14 @@ public class CreationModel extends Observable{
 			soundAssets.mkdir();
 		}
 
+		if(!pictureAssets.exists()) {
+			pictureAssets.mkdir();
+		}
+
 	}
 
 	public void updateList(){
-		
+
 		fileList.clear();
 		nameList.clear();
 		//clear the list before refreshing
@@ -79,23 +84,46 @@ public class CreationModel extends Observable{
 
 		this.iterableList = Collections.list(fileList.elements());
 	}
-	
+
 	private void cleanAssets() {
-		//this method will clean the videoAsset and soundAsset files for files that aren't in the model
+		//this method will clean the videoAsset and soundAsset as well as picture Asset files for files that aren't in the model
 		for (File sound: soundAssets.listFiles()) {
 			String soundName=sound.getName();
-			
+
 			if (soundName.contains(".wav")){
-				soundName= soundName.substring(0, soundName.lastIndexOf("."));
+				if (soundName.lastIndexOf(".")>0) {
+					soundName= soundName.substring(0, soundName.lastIndexOf("."));
+				}
 			}			
 			if (!nameList.contains(soundName+".mp4")) {
 				sound.delete();
 			}
-		}		
+		}
+		
+		for (File pic: pictureAssets.listFiles()) {
+			String pictureName=pic.getName();
+			
+			if (pictureName.contains(".jpg")){
+				if (pictureName.lastIndexOf(".")>0) {
+					pictureName= pictureName.substring(0, pictureName.lastIndexOf("."));
+				}
+			}
+			
+			if(!nameList.contains(pictureName+".mp4")) {
+				pic.delete();
+			}			
+		}
+		
+		for (File video:videoAssets.listFiles()) {
+			if (!nameList.contains(video.getName())) {
+				video.delete();
+			}
+		}
 	}
 
 
-	public void deleteElement(File file){
+	public void deleteElement(File file){		
+		String fileName=file.getName();
 		//issue here is that only updateList should be touching directory internals.
 		for (File creation: iterableList){
 			if(creation.equals(file)){
@@ -112,14 +140,18 @@ public class CreationModel extends Observable{
 		for (File sound:soundAssets.listFiles()) {
 			//Delete sound Assets
 			String soundName=sound.getName();
-			String fileName=file.getName();
+
 
 			if (soundName.contains(".wav")){
-				soundName= soundName.substring(0, soundName.lastIndexOf("."));
+				if(soundName.lastIndexOf(".")>0) {
+					soundName= soundName.substring(0, soundName.lastIndexOf("."));
+				}
 			}
 
 			if (file.getName().contains(".mp4")){
-				fileName=fileName.substring(0, fileName.lastIndexOf("."));
+				if(fileName.lastIndexOf(".")>0) {
+					fileName=fileName.substring(0, fileName.lastIndexOf("."));
+				}
 			}
 
 			if (soundName.equals(fileName)) {
@@ -127,11 +159,23 @@ public class CreationModel extends Observable{
 			}
 		}
 
+		for (File thumbnail:pictureAssets.listFiles()) {
+			//Delete picture Assets
+			String picName=thumbnail.getName();
+
+			if (picName.contains(".jpg")) {
+				picName=picName.substring(0, picName.lastIndexOf("."));
+			}
+			if(picName.equals(fileName)) {
+				thumbnail.delete();
+			}
+		}
+
 		updateList();
 	}
 
 	public String playElement(File file){		
-		
+
 		for (File creation: iterableList){
 			if(creation.equals(file)){
 				return creation.getPath();
@@ -151,17 +195,17 @@ public class CreationModel extends Observable{
 
 	public void record(String name) {
 		builder.setName(name);
-		
+
 		if(!nameList.contains(name+".mp4")) {
 			//overwriten in the script
-			
+
 			RecordWorker record=new RecordWorker(this.builder);
 			record.execute();
 		}
 	}
-	
+
 	public String playSound(String name) {		
-		
+
 		for (File wav:soundAssets.listFiles()) {			
 			if(wav.getName().equals(name+".wav")) {				
 				return wav.getPath();
@@ -169,12 +213,30 @@ public class CreationModel extends Observable{
 		}
 		return null;
 	}
-	
+
+	public String getPreview(String name) {
+		String parsedName=name;
+
+		if (name.contains(".mp4")&&name.contains("/")) {
+			parsedName=name.substring(name.lastIndexOf("/")+1, name.lastIndexOf("."));
+		}
+
+		for (File preview:pictureAssets.listFiles()) {
+
+			if (preview.getName().equals(parsedName+".jpg")) {
+
+				return preview.getPath();
+			}
+		}
+		return null;
+
+	}
+
 	public void finishedRecord() {
 		this.setChanged();
 		this.notifyObservers("halfFinished");
 	}
-	
+
 	public void creationFinished() {
 		//this notifies differently. 
 		this.updateList();
@@ -186,7 +248,7 @@ public class CreationModel extends Observable{
 	public DefaultListModel<File> outputFileList() {
 		return fileList;
 	}
-	
+
 	public boolean isInNameList(String name){
 		//check if the name is in the nameList
 		return nameList.contains(name+".mp4");

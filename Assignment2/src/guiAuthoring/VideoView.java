@@ -15,6 +15,8 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -26,6 +28,8 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.discovery.NativeDiscovery;
@@ -39,6 +43,8 @@ public class VideoView{
 
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private final EmbeddedMediaPlayer video;
+	
+	private boolean isPlaying=false;
 
 
 	public static void main(String[] args) {
@@ -61,7 +67,8 @@ public class VideoView{
 	private JPanel controlPanel; //panel with main buttons
 	private JPanel listPanel; //panel with the list of creations
 	private JPanel videoPanel; //panel with the video player
-
+	
+	private ImageIcon preview;
 
 
 	public VideoView(){
@@ -80,22 +87,52 @@ public class VideoView{
 		model.createFiles();
 		model.updateList();
 		
-		//Upon starting, the file directories will be checked and then updated into the gui.
+		//Upon starting, the file directories will be checked and then updated into the gui
+		
 
-
+		
+		
+		//Add a thumbnail Jpanel to the listPanel at the top.
+		JLabel thumbnail=new JLabel();
+				
+		
+		
+		//Use a listModel and a JList to display all the creations
 		JList<File> list=new JList<File>(model.outputFileList());
+	
 		list.setCellRenderer(new FileRenderer());
-		//Make this update everytime List is pressed.
+		
+		list.addListSelectionListener(new ListSelectionListener(){
+
+			@Override
+			public void valueChanged(ListSelectionEvent arg0) {
+				if (list.getSelectedValue()!=null&&list.getValueIsAdjusting()==false) {
+					preview=new ImageIcon(model.getPreview(list.getSelectedValue().toString()));
+										
+					thumbnail.setIcon(preview);
+				}
+				
+			}
+			
+		});
+		
+				
 
 		JScrollPane scrollPane=new JScrollPane(list);
 		scrollPane.setPreferredSize(new Dimension(200,30));
-		//TODO, get rid of magic numbers
+		
 
 		JScrollBar bar = scrollPane.getVerticalScrollBar();
 		bar.setPreferredSize(new Dimension(10, 0));
+		
+
+		
+		listPanel.add(thumbnail, BorderLayout.NORTH);
+		listPanel.add(scrollPane,BorderLayout.WEST);
+		listPanel.add(bar,BorderLayout.EAST);		
 
 
-		//Use a listModel and a JList to display all the creations
+		
 
 		mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
 		video = mediaPlayerComponent.getMediaPlayer();
@@ -103,6 +140,7 @@ public class VideoView{
 		video.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
 			@Override
 			public void finished(MediaPlayer mediaPlayer) {
+				isPlaying=false;
 				videoPanel.getComponent(0).setVisible(false);
 				//on finishing, hide the videoPanel
 
@@ -113,8 +151,7 @@ public class VideoView{
 
 		videoPanel.add(mediaPlayerComponent, BorderLayout.CENTER);
 		contentPanel.add(videoPanel,BorderLayout.CENTER);
-		listPanel.add(scrollPane,BorderLayout.WEST);
-		listPanel.add(bar,BorderLayout.EAST);
+	
 
 
 
@@ -125,6 +162,10 @@ public class VideoView{
 			@Override
 			public void actionPerformed(ActionEvent e) {				
 				model.updateList();
+				//hitting RefreshList will deselect all elements and will empty the thumbnail
+				preview=null;					
+				thumbnail.setIcon(preview);	
+				
 
 			}
 		});		
@@ -138,21 +179,28 @@ public class VideoView{
 			public void actionPerformed(ActionEvent e) {
 				if (list.getSelectedValue()!=null) {
 					videoPanel.getComponent(0).setVisible(true);
-
-					video.playMedia(model.playElement((list.getSelectedValue()))); 
+					isPlaying=true;
+					video.playMedia(model.playElement((list.getSelectedValue()))); 					
 
 				}
 			}		
 		});
 		controlPanel.add(playButton);
 
-		JButton destroyButton = new JButton("Delete");		
+		JButton destroyButton = new JButton("Delete");	
+		//Button used to destroy creations, will destroy all relevant assets as well.
 		destroyButton.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (list.getSelectedValue()!=null) {
-
-					model.deleteElement(list.getSelectedValue());	
+					
+					if(!isPlaying) {
+					//modules cannot be deleted if video is in a playing state
+					preview=null;					
+					thumbnail.setIcon(preview);	
+					
+					model.deleteElement(list.getSelectedValue());
+					}
 
 				}
 			}

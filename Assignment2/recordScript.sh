@@ -1,6 +1,6 @@
 #!bin/bash
 
-			if [ -e "../soundAssets/$1.wav" ]
+			if [ -e "./soundAssets/$1.wav" ]
 
 			then 
 
